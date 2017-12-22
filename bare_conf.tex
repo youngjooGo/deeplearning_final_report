@@ -96,15 +96,49 @@ The Da vinci code is the kinds of board game. This game guesses the tiles of opp
  
 \hfill August 26, 2015
 \section{Background}
-
+In this section, we take a brief look at the Da Vinci code and Monte Carlo Treee Search. 
 \subsection{Da Vinci Code}
+Da Vinci code is a kind of board games. 
+The game use 26 tiles which consists of two joker tiles and numbered tiles from 0 to 11. 
+Thirteen of the tiles are black and the other 13 are white.
+At first, all the tiles are placed on the table so that the other party can not see them.
+Each player then chooses four tiles and arranges them secretly in ascending order with the smallest number on the left to make his/her code. 
 
+A player turn consists in guessing the remaining opponent's tiles. 
+If the tiles are the same number, the black tile is considered a small number.
+If the player's guess is not correct, the player must reveal the tile he/she has brought and insert it at the correct place.
+If the player's guess is correct, the opponent must reveal the matching tile.
+The active player can decide to keep guess or to stop.
+[cite: wikipidia]
 \subsection{Monte Carlo Tree Search}
 
-MCTS is 
+Monte Carlo tree search (MCTS) is a heuristic search algorithm for kinds of decision processes.
+It is mainly used for game play.  
+The focus of Monte Carlo tree search is on the analysis of the most successful moves, expanding the search tree based on random sampling of the search space. 
+The Monte Carlo tree search in games is based on many cases of playout. 
+In each playout, the game is played out by selecting decision at random. 
+The final game result of each playout is used to weight the nodes in the game tree so that better nodes are more likely to be chosen in future playouts.
+\begin{figure}
+\includegraphics{figures/fit_2col.pdf}
+\caption{FIX:Figure}
+\label{fig:MCTS_step}
+\end{figure}
+
+There are 4 steps to create MCTS selectionm expansion, simulation, and backptropagation.
+Selection start from root R and select successive child nodes down to a leaf node L. The \cref{fig:MCTS_step} (a) show the selection. shows the selection.
+Expansion create one or more child nodes unless leaf node L ends the game and choose node C from one of them. The \cref{fig:MCTS_step} (b) shows the expansion.
+Simulation play a random playout from node C as \cref{fig:MCTS_step} (c).
+Backpropagation use the result of the playout to update information in the nodes on the path from C to root. 
+Through these steps, the tree is expanded and used for promising decision.
 
 \section{Motivation}
-
+The MCTS, which is used to make decisions in the game, must complete decisions in a limited amount of time for real-time game play. 
+However, in order for MCTS to make good decisions, it is necessary to repeat a number of simulated plays, and when there are not enough simulated plays, a bad answer can be drawn. 
+Therefore, parallelization of MCTS is necessary to obtain a high performance answer.
+In this project, we will implement the 'DaVinci Code' MCTS to find features that are not suitable for the GPU through comparing GPU based application with CPU based application.
+The Da Vinci code has a number of branch divergence and the the time taken to execute command depends on the branch.
+In this project, we find the problems which the unsuitable GPU application causes.
+We study features that make Da Vinci code-MCTS suitable for GPU compared to CPU based MCTS.
 
 % 일반적으로, implementation은 algorithm 뒤에 오는 경우가 많음.
 \section{Method}
@@ -113,6 +147,7 @@ Firstly, we implemented the MCTS algorithm for Da vinci code (\cpu) that is runn
 We used OpenMP to parallelize the algorithm.
 Secondly, we implemented the same algorithm that is running upon GPU environment (\gpu).
 We used cuda to implement and parallelize the algorithm.
+
 % Both versions are implemented in parallel. 
 In the remaining of this section, we describes each version of algorithm in detail. 
 As we modified the algorithm due to compuation overhead, we explain the algorithm design considerations compared to the vanilla version of MCTS.
@@ -136,8 +171,26 @@ As we modified the algorithm due to compuation overhead, we explain the algorith
  However, we implemented Da Vinci code that only stop whether the player hits the tile or not. 
  Since original Da vinci code has numerous of child node which make the decision tree unbalanced, we decided to implemente simple Da Vinci code which only has stop behavior.
  
- Second one is original MCTS makes expansion to make decision make tree, but we simplified MCTS. Since Da Vinci Code has 000000 on each depth, the number of casese make a number of sibling nodes too hard to compute decision through MCTS. In addition, too many cases make wrong decision, because root node has nodes that have similar winning rate. Therefore, MCTS which we implemented has limitation of expansion. The \cref{fig:compare_expansion} shows the difference bewteen original MCTS and MCTS which we implemented. We make one expansion from root and then the remaining turns are proceeded randomly. The result of game updates expanded node from root and the MCTS doesn't make other expansion from frist depth. 
+ \begin{figure}
+\includegraphics{figures/fit_2col.pdf}
+\caption{FIX:Figure}
+\label{fig:compare_expansion}
+\end{figure}
 
+ Second one is original MCTS makes expansion to make decision make tree, but we simplified MCTS. 
+ Since Da Vinci Code has 000000 on each depth, the number of casese make a number of sibling nodes too hard to compute decision through MCTS. 
+ In addition, too many cases make wrong decision, because root node has nodes that have similar winning rate. 
+ Therefore, MCTS which we implemented has limitation of expansion. 
+ The \cref{fig:compare_expansion} shows the difference bewteen original MCTS and MCTS which we implemented. 
+ We make one expansion from root and then the remaining turns are proceeded randomly. 
+ The result of game updates expanded node from root and the MCTS doesn't make other expansion from frist depth. 
+
+
+\begin{figure}
+\includegraphics{figures/fit_1col.pdf}
+\caption{FIX:Figure}
+\label{fig:implementation}
+\end{figure}
 
 \subsection{Overall Implementation}
 To make final MCTS both of CPU and GPU, each thread make small MCTS by simulating a couple of games.
@@ -173,6 +226,12 @@ We measure the execution time to analysis the dominant factor of time consuming.
 We evaluate the performance and difference between CPU based MCTS and GPU based MCTS to measure from the number of simulation per second.
 
 \subsection{Execution Time}
+\begin{figure}
+\includegraphics{figures/fit_1col.pdf}
+\caption{FIX:Figure}
+\label{fig:time_consuming}
+\end{figure}
+
 We mesure the execution time by varying the number of simulations from 1 to $10^7$ and calculate average values on 5 times execution. 
 The \cref{fig:time_consuming} shows the execution time which CPU measures using 12 threads and GPU measures using 32 threads
 As increasing the number of simulations, the execution time also increases. Therefore, the number of simulation is dominant factor of time consuming. 
@@ -183,119 +242,77 @@ The reason is when the number of simulation is small, the memory access to the l
 
 \subsection{The Number of Simulation per Second}
 \subsubsection{CPU}
+\begin{figure}
+\includegraphics{figures/fit_1col.pdf}
+\caption{FIX:Figure}
+\label{fig:cpu_num_simulation}
+\end{figure}
+
 The \cref{fig:cpu_num_simulation} shows the result of the number of simulation per second over increasing number of threads of CPU. As incresing threads, the number of simulations per second also increases linearly. 
 However, you can see the number of simulations decrease if the number of threads exceeds 12. 
 The reason why the number of simulations decrease is that we have only 12 core. In other word, the number of physical cores is the scalability bootleneck. 
 Therefore, it can be seen that the performance increases linearly with the number of cores in the CPU. 
 \subsubsection{GPU}
+\begin{figure}
+\includegraphics{figures/fit_1col.pdf}
+\caption{FIX:Figure}
+\label{fig:gpu_num_simulation}
+\end{figure}
+
 The \cref{fig:gpu_num_simulation} shows the result of the number of simulation per second over increasing number of threads of GPU. 
 Unlike the \cref{fig:cpu_num_simulation}, the \cref{fig:gpu_num_simulation} shows the non-linear shape. 
 In addition, the graph has instant performance degradation at the middle despite increasing the number of threads. 
-This is because cache misses increase as the number of thread is used, and memory bottlenecks from cache misses are higher than computaion performance obtained by increasing threads in CPU as mentioned in [cite].
+This is because cache misses increase as the number of thread is used, and memory bottlenecks from cache misses are higher than computaion performance obtained by increasing threads in CPU.
+
+We measure the number of simulations with varying the number of warps to identify the valley which is mentioned in [cite]. 
+\begin{figure}
+\includegraphics{figures/fit_1col.pdf}
+\caption{FIX:Figure}
+\label{fig:gpu_warp_simulation}
+\end{figure}
+
+The \cref{fig:gpu_warp_simulation} shows the result of experiment that measures the number of simulations according to the number of warps. 
+If the number of warps is over 12, the performance decrease like [cite]. 
+The memory contention makes valley, therefore the the number of simulation reducte despite increasing the number of warps. 
+
+\begin{figure}
+\includegraphics{figures/fit_1col.pdf}
+\caption{FIX:Figure}
+\label{fig:gpu_thread_time}
+\end{figure}
 
 In MCTS based on GPU, the threads which are already finished should wait until the thread which has the most number of turns ends. 
 Because other threads need to wait for the longest thread, the MCTS based on GPU should be the weak scaling which takes the same amount of time to increase the number of threads.
-However, the \cref{fig:gpu_thread_time} which  shows that weak scaling is not sustained. 
-
-% An example of a floating figure using the graphicx package.
-% Note that \label must occur AFTER (or within) \caption.
-% For figures, \caption should occur after the \includegraphics.
-% Note that IEEEtran v1.7 and later has special internal code that
-% is designed to preserve the operation of \label within \caption
-% even when the captionsoff option is in effect. However, because
-% of issues like this, it may be the safest practice to put all your
-% \label just after \caption rather than within \caption{}.
-%
-% Reminder: the "draftcls" or "draftclsnofoot", not "draft", class
-% option should be used if it is desired that the figures are to be
-% displayed while in draft mode.
-%
-%\begin{figure}[!t]
-%\centering
-%\includegraphics[width=2.5in]{myfigure}
-% where an .eps filename suffix will be assumed under latex, 
-% and a .pdf suffix will be assumed for pdflatex; or what has been declared
-% via \DeclareGraphicsExtensions.
-%\caption{Simulation results for the network.}
-%\label{fig_sim}
-%\end{figure}
-
-% Note that the IEEE typically puts floats only at the top, even when this
-% results in a large percentage of a column being occupied by floats.
+However, the \cref{fig:gpu_thread_time} which shows that weak scaling is not sustained. 
+There are two reasons why the \cref{fig:gpu_thread_time} is not weak scaling. 
+First is path divergence issue until 16 threads. 
+Many divergences to guess the opponent's tile take more time to finish compuation.   
+Second is memory contention issue which performance valley as we mentioned previous more than 16 threads.
+As the number of threads increases, not enough memory makes memory contention so the time takes more time.
 
 
-% An example of a double column floating figure using two subfigures.
-% (The subfig.sty package must be loaded for this to work.)
-% The subfigure \label commands are set within each subfloat command,
-% and the \label for the overall figure must come after \caption.
-% \hfil is used as a separator to get equal spacing.
-% Watch out that the combined width of all the subfigures on a 
-% line do not exceed the text width or a line break will occur.
-%
-%\begin{figure*}[!t]
-%\centering
-%\subfloat[Case I]{\includegraphics[width=2.5in]{box}%
-%\label{fig_first_case}}
-%\hfil
-%\subfloat[Case II]{\includegraphics[width=2.5in]{box}%
-%\label{fig_second_case}}
-%\caption{Simulation results for the network.}
-%\label{fig_sim}
-%\end{figure*}
-%
-% Note that often IEEE papers with subfigures do not employ subfigure
-% captions (using the optional argument to \subfloat[]), but instead will
-% reference/describe all of them (a), (b), etc., within the main caption.
-% Be aware that for subfig.sty to generate the (a), (b), etc., subfigure
-% labels, the optional argument to \subfloat must be present. If a
-% subcaption is not desired, just leave its contents blank,
-% e.g., \subfloat[].
+\section{Discussion}
+\subsection{Parallelization in GPU and CPU}
+To make good MCTS, parallelization can help simulate a number of cases in limited time. 
+However, paralleization makes bottleneck in two versions of MCTS for Da vinci code.
+For \cpu, the number of physical cores becomes a bottleneck of performance improvement.
+For \gpu, memory contention and path divergence interfere performance improvement. 
+In order to utilize parallelization well, MCST should be optimized for Da Vinci code to solve the bottleneck.
 
+\subsection{Challenges during the project} %Davinci code가 MCTS에 맞지 않아서 구현이 힘들었다
+We implemented \cpu and \gpu to compare performance of MCTS for Da Vinci code. 
+However Da Vinci code is not suitable for the structure of MCTS because of unbalanced length of turn and a lot of cases.
+Huge cases makes numerous sibling nodes so it is hard to conduct MCTS. 
+In addition unbalanced lenth causes path divergence so it is hard to parallize.
+This structural problem has made it difficult to implement the MCTS.
 
-% An example of a floating table. Note that, for IEEE style tables, the
-% \caption command should come BEFORE the table and, given that table
-% captions serve much like titles, are usually capitalized except for words
-% such as a, an, and, as, at, but, by, for, in, nor, of, on, or, the, to
-% and up, which are usually not capitalized unless they are the first or
-% last word of the caption. Table text will default to \footnotesize as
-% the IEEE normally uses this smaller font for tables.
-% The \label must come after \caption as always.
-%
-%\begin{table}[!t]
-%% increase table row spacing, adjust to taste
-%\renewcommand{\arraystretch}{1.3}
-% if using array.sty, it might be a good idea to tweak the value of
-% \extrarowheight as needed to properly center the text within the cells
-%\caption{An Example of a Table}
-%\label{table_example}
-%\centering
-%% Some packages, such as MDW tools, offer better commands for making tables
-%% than the plain LaTeX2e tabular which is used here.
-%\begin{tabular}{|c||c|}
-%\hline
-%One & Two\\
-%\hline
-%Three & Four\\
-%\hline
-%\end{tabular}
-%\end{table}
-
-
-% Note that the IEEE does not put floats in the very first column
-% - or typically anywhere on the first page for that matter. Also,
-% in-text middle ("here") positioning is typically not used, but it
-% is allowed and encouraged for Computer Society conferences (but
-% not Computer Society journals). Most IEEE journals/conferences use
-% top floats exclusively. 
-% Note that, LaTeX2e, unlike IEEE journals/conferences, places
-% footnotes above bottom floats. This can be corrected via the
-% \fnbelowfloat command of the stfloats package.
-
-
-
-
+\subsection{Future works}
+To optimize the MCTS, we need to analysis the main factor of memory contention with controlling memory consumption per thread. 
+Through identifing the cause of bottleneck, we need to design the MCTS to solve this problem.
 \section{Conclusion}
-The conclusion goes here.
+We implement \cpu and \gpu for Da Vinci code for parallelization. 
+To Compare \cpu with \gpu, we measure the execution time with increasing the number of simulation and the number of simulation with increasing thread. 
+Through the result, \cpu show well strongly scaled in parallelization while \gpu show non-weakly scaled due to memory contention. 
 
 
 
