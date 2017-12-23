@@ -61,7 +61,7 @@ y0108009@postech.ac.kr}}
 
 \section{Introduction}
 % no \IEEEPARstart
-
+ 
 % Popularity of A.I
 Artificial intelligence defeated human play in the game `Go'.
 As the number of cases in go is considered much larger than the number of cases in chess or Korean chess, go is treated as the unsolvable game to artificial intelligence.
@@ -104,13 +104,21 @@ We implement and evaluated two versions of MCTS to compare how branch divergence
 We implemented CPU-version of MCTS, called \cpu, which used OpenMP to parallelize simulations.
 We implemented GPU-version of MCTS, called \gpu, which used cuda library to parallelize simulations.
 % We evaluated \cpu and \gpu to figure out main factor of decreasing performance.
-\cpu showed linear fashion performance increasing, whereas \gpu showed non-linear fashion performance increasing and peformance valley.
-\\WRITE RESULT
-\\WRITE DISCUSSION
+\cpu shown linear fashion performance increasing, whereas \gpu showed non-linear fashion performance increasing and peformance valley.
+Performance up to 12 threads increases linearly on \cpu.
+Since each core proceeds the thread, performance improvements due to threads increase are limited by the count of cores.
+
+Branch divergence which results from unbalanced game length makes non-linear fashion performance increasing on \gpu
+The performance valley result from memory contention as the threads increase. 
+
+We has found the features which makes performance degradation on \gpu which are memory contention, branch divergence.
+We will analysis the main feature which causes the performance degradation.
+We will optimize \gpu by solving the problems.
+We will utilize shared memory and use memory locality to reduce memory contention.
+In addition, we will modify the branch statement to reduce branch divergence so that there is not an idle thread left.
 
 % Future plan. Future work. (Discussion)
-WRITE DISCUSSION ABOUT FUTURE
-\\WRITE HOW TO USE THIS
+
 
 % Monte Carlo Tree Search (MCTS) is a decision making algorithm which has been used for implementing aritifial intelligence(AI) widly.
 % Since MCTS is used for games which proceed on real time, it should make decision within a limied time. 
@@ -125,7 +133,7 @@ WRITE DISCUSSION ABOUT FUTURE
 \section{Background}
 In this section, we take a brief look at the Da Vinci code and Monte Carlo Treee Search. 
 \subsection{Da Vinci Code} \label{sec:davinci}
-Da Vinci code is a kind of board games. 
+Da Vinci code is a kind of board games~\cite{davinci_code}. 
 The game use 26 tiles which consists of two joker tiles and numbered tiles from 0 to 11. 
 Thirteen of the tiles are black and the other 13 are white.
 At first, all the tiles are placed on the table so that the other party can not see them.
@@ -136,11 +144,11 @@ If the tiles are the same number, the black tile is considered a small number.
 If the player's guess is not correct, the player must reveal the tile he/she has brought and insert it at the correct place.
 If the player's guess is correct, the opponent must reveal the matching tile.
 The active player can decide to keep guess or to stop.
-[cite: wikipidia]
+
 \subsection{Monte Carlo Tree Search}
 
 Monte Carlo tree search (MCTS) is a heuristic search algorithm for kinds of decision processes.
-It is mainly used for game play.  
+It is mainly used for game play~\cite{MCTS}.  
 The focus of Monte Carlo tree search is on the analysis of the most successful moves, expanding the search tree based on random sampling of the search space. 
 The Monte Carlo tree search in games is based on many cases of playout. 
 In each playout, the game is played out by selecting decision at random. 
@@ -155,7 +163,7 @@ There are 4 steps to create MCTS selectionm expansion, simulation, and backptrop
 Selection start from root R and select successive child nodes down to a leaf node L. The \cref{fig:MCTS_step} (a) show the selection. shows the selection.
 Expansion create one or more child nodes unless leaf node L ends the game and choose node C from one of them. The \cref{fig:MCTS_step} (b) shows the expansion.
 Simulation play a random playout from node C as \cref{fig:MCTS_step} (c).
-Backpropagation use the result of the playout to update information in the nodes on the path from C to root. 
+Backpropagation use the result of the playout to update information in the nodes on the path from C to root.
 Through these steps, the tree is expanded and used for promising decision.
 
 \section{Motivation}
@@ -201,13 +209,13 @@ As we modified the algorithm due to compuation overhead, we explain the algorith
  \begin{figure}
  \begin{subfigure}[b]{0.95\columnwidth}
 \includegraphics [width=0.95\columnwidth]{figures/sub_compare_expansion_1.pdf}
-\caption{(a) Vanilla MCST with expansion}
+\caption{Vanilla MCST with expansion}
 \label{fig:expansion}
 \end{subfigure}
 \par\bigskip
 \begin{subfigure}[b]{0.95\columnwidth}
 \includegraphics [width=0.95\columnwidth]{figures/sub_compare_expansion_2.pdf}
-\caption{(b) Simplified MCST with limited expansion}
+\caption{Simplified MCST with limited expansion}
 \label{fig:limited_expansion}
 \end{subfigure}
 \caption{Comparr vanilla MCTS with simplified MCTS}
@@ -300,7 +308,7 @@ Unlike the \cref{fig:cpu_num_simulation}, the \cref{fig:gpu_num_simulation} show
 In addition, the graph has instant performance degradation at the middle despite increasing the number of threads. 
 This is because cache misses increase as the number of thread is used, and memory bottlenecks from cache misses are higher than computaion performance obtained by increasing threads in CPU.
 
-We measure the number of simulations with varying the number of warps to identify the valley which is mentioned in [cite]. 
+We measure the number of simulations with varying the number of warps to identify the valley which is mentioned in ~\cite{hpca2015valley}. 
 \begin{figure}
 \includegraphics[width=0.95\columnwidth]{figures/gpu_warp_simulation.pdf}
 \caption{The number of simulation according to the number of warps on GPU}
@@ -308,7 +316,7 @@ We measure the number of simulations with varying the number of warps to identif
 \end{figure}
 
 The \cref{fig:gpu_warp_simulation} shows the result of experiment that measures the number of simulations according to the number of warps. 
-If the number of warps is over 12, the performance decrease like [cite]. 
+If the number of warps is over 12, the performance decrease like ~\cite{hpca2015valley}. 
 The memory contention makes valley, therefore the the number of simulation reducte despite increasing the number of warps. 
 
 \begin{figure}
