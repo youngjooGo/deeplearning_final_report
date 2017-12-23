@@ -98,15 +98,15 @@ By setting the expansion threshold, we eliminates the unrealistic-depth node.
 \end{figure}
 
 \subsection{Implementation overview}
-To make final MCTS both of CPU and GPU, each thread make small MCTS by simulating a couple of games.
+To make final MCTS, each thread makes small MCTS by simulating a couple of games.
 At this time, MCTS is conducted based on current state of own player and an oppenent.
-As playing some games within a thread, a simulation makes small MCTS.
+THrough playing some games within a thread, a simulation makes small MCTS.
 Each game in a thread expands the child node from root. 
-When the game expands the child node at the frist turn in a thread, the game proceed randomly. 
-The result of game rolls out parent node and is updated on the node which is depth one. 
+After the game expands the child node at the frist turn in a thread, the game proceeds randomly. 
+The result of game rolls out parent node and is updated on the node which is expanded. 
 The next game also expands the child node from the root and update the result of game to expanded node (depth one).
 Each tread repeats this routin to make small MCTS. 
-The threads have small trees which is from simulation and these trees are combined to final MCTS which is used for decision making in Da Vinci code. 
+The threads have small trees which are from simulation and these trees are combined to final MCTS which is used for decision making in Da Vinci code. 
 The \cref{fig:implementation} shows the overall process how the MCTS is conducted.
 When the player comes to the turn, threads make final MCTS based on current state of the player and the oppenent. 
 The player makes the decision based on the final MCTS. 
@@ -114,12 +114,12 @@ The player makes the decision based on the final MCTS.
 \subsection{Implementation of \cpu}
 MCTS needs many simulated play repeatly to make good decision. 
 Parallelism can make MCTS construct good decision tree in a short period due to computating simultaneously. 
-MCTS based on CPU is implemented by openMP to utilize parallelism. Each thread computes some turns and derivates a result(win or lose). 
-After finish derivation of result, all results from each thread are combined one MCTS.
-
+MCTS based on CPU is implemented by openMP to utilize parallelism. 
+Each thread computes simulations and derives a result(win or lose). 
+After finishing derivation of result, all results from each thread are combined one MCTS.
 
 \subsection{Implementation of \gpu}
-As we mentioned, MCTS need parallelism to computation many cases for good decision. 
+As we mentioned, MCTS needs parallelism to compute many cases for good decision. 
 In GPU version, we use CUDA for paraller computation. 
-Each tread computes a couple of turns and derivates a result(win or lose) as same as CPU version. 
-After finish derivation of result, the results from each tread are combined final MCTS. 
+Each tread computes a couple of simulations and derive a result(win or lose) as same as CPU version. 
+After finishing deduction of result for each small MCTS, the small MCTS are combined final MCTS. 
