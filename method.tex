@@ -15,7 +15,7 @@
 \caption{MCST with only stop choice}
 \label{fig:stop_game}
 \end{subfigure}
-\caption{Comparing vanilla MCTS with simplified MCTS}
+\caption{Simplification: not to keep guessing}
 \end{figure}
 
 
@@ -46,21 +46,22 @@ We treated this algorithm as a vanilla Da Vinci Code algorithm (\md).
 
 
 We modified three parts of \md~to simplify the problem.
-At first, we ignored a set of plausible numbers in view of node.
+Firstly, we ignored a set of plausible numbers in view of node.
 When we consider a set of plausible numbers, the number of child nodes is exploded.
 For example, at the first turn, the root node can have at least 11880 number of chiled nodes.
 We compute the number conservatively by considering the case that the opponent have the same colored four tiles.
 Though the number is minimum of the number of cases, the number is much higher than 361, the number of go's.
 We decided to ignore the set of plausible numbers, and only think of guessing position and guessing number because too many child nodes harm the quality of decision.
-By ignoring, we decreased the number
+By ignoring the plausible set, we decreased the number of cases up to 88.
 
-First one is that a player who plays Da Vinci code has two behaviors in each turn, when he/she guesses the tiles. 
-Two behaviors are stop and keepping guess.
-If the player guesses correctly, play can select stop or keepping guess. 
-Therefore, Original Da Vinci code makes depending on the player's choice as \cref{fig:proceed_game}.
-The gray nodes mean that a player selects keeping guess. 
-However, we implemented Da Vinci code that only stop whether the player hits the tile or not as \cref{fig:stop_game}. 
-Since original Da vinci code has numerous child node which make the decision tree unbalanced, we decided to implemente simple Da Vinci code which only has stop behavior.
+Secondly, we prohibited consecutive guessing.
+A player who corrects the tile has chance to keep guessing or stop.
+Therefore, \md has different player's node in the same depth~\cref{fig:proceed_game}.
+The gray nodes mean that the same player keeps geussing.
+This consecutive guessing makes the tree much complex, so we simplified this part.
+We implemented Da Vinci code to always stop guessing when the player corrects the tile~\cref{fig:stop_game}.
+To eliminating complex child node set, we could implement both of \cpu~and \gpu.
+% Since original Da vinci code has numerous child node which make the decision tree unbalanced, we decided to implemente simple Da Vinci code which only has stop behavior.
  
 \begin{figure}
 \begin{subfigure}[b]{0.95\columnwidth}
@@ -74,16 +75,20 @@ Since original Da vinci code has numerous child node which make the decision tre
 \caption{MCST with limited expansion}
 \label{fig:limited_expansion}
 \end{subfigure}
-\caption{Comparing vanilla MCTS with simplified MCTS}
+\caption{Simplification: limited expansion}
 \end{figure}
 
-Second one is original MCTS makes expansion to make decision making tree, but we simplified MCTS. 
-Since Da Vinci Code has 000000 on each depth, the number of cases makes a number of sibling nodes too hard to compute decision through MCTS. 
-In addition, too many cases make wrong decision, because root node has nodes that have similar winning rate. 
-Therefore, MCTS which we implemented has limitation of expansion. 
-The \cref{fig:expansion} and \cref{fig:limited_expansion}shows the difference bewteen original MCTS and MCTS which we implemented. 
-We make one expansion from root and then the remaining turns are proceeded randomly. 
-The result of game updates expanded node from root and the MCTS doesn't make other expansion from frist depth. 
+Lastly, we limited the depth of expansion. 
+Because Da Vinci Code has unlimited number of guessing in case of failing to guess, theoretical depth of tree is infinite.
+This unrealistic cases can harm the performance of MCTS, so we fixed the depth of tree.
+Nodes that has depth of the threshold conduct simulation and backpropagation, except expansion.
+% 000000 on each depth, the number of cases makes a number of sibling nodes too hard to compute decision through MCTS. 
+% In addition, too many cases make wrong decision, because root node has nodes that have similar winning rate. 
+% Therefore, MCTS which we implemented has limitation of expansion. 
+The \cref{fig:expansion} and \cref{fig:limited_expansion} show the difference bewteen original MCTS and simplified MCTS which we implemented.
+By setting the expansion threshold, we eliminates the unrealistic-depth node.
+% We make one expansion from root and then the remaining turns are proceeded randomly. 
+% The result of game updates expanded node from root and the MCTS doesn't make other expansion from frist depth. 
 
 
 \begin{figure}
