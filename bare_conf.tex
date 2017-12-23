@@ -4,10 +4,12 @@
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage[capitalize]{cleveref}
+\usepackage{subcaption}
 
 \newcommand{\md} {\textsc{MCTSdvc} }
 \newcommand{\cpu} {\textsc{MCTScpu} }
 \newcommand{\gpu} {\textsc{MCTSgpu} }
+
 
 \ifCLASSINFOpdf
 \else
@@ -118,11 +120,11 @@ The focus of Monte Carlo tree search is on the analysis of the most successful m
 The Monte Carlo tree search in games is based on many cases of playout. 
 In each playout, the game is played out by selecting decision at random. 
 The final game result of each playout is used to weight the nodes in the game tree so that better nodes are more likely to be chosen in future playouts.
-\begin{figure}
-\includegraphics{figures/fit_2col.pdf}
-\caption{FIX:Figure}
+\begin{figure*}
+\includegraphics[width=2.05\columnwidth]{figures/MCTS_step.pdf}
+\caption{The steps of MCTS}
 \label{fig:MCTS_step}
-\end{figure}
+\end{figure*}
 
 There are 4 steps to create MCTS selectionm expansion, simulation, and backptropagation.
 Selection start from root R and select successive child nodes down to a leaf node L. The \cref{fig:MCTS_step} (a) show the selection. shows the selection.
@@ -155,8 +157,8 @@ As we modified the algorithm due to compuation overhead, we explain the algorith
 \subsection{Simplified Algorithm Design}
 
 \begin{figure}
-\includegraphics{figures/fit_1col.pdf}
-\caption{FIX:Figure}
+\includegraphics[width=0.95\columnwidth]{figures/base_tree.pdf}
+\caption{The base tree of MCTS}
 \label{fig:base_tree}
 \end{figure}
 
@@ -172,23 +174,32 @@ As we modified the algorithm due to compuation overhead, we explain the algorith
  Since original Da vinci code has numerous of child node which make the decision tree unbalanced, we decided to implemente simple Da Vinci code which only has stop behavior.
  
  \begin{figure}
-\includegraphics{figures/fit_2col.pdf}
-\caption{FIX:Figure}
-\label{fig:compare_expansion}
+ \begin{subfigure}[b]{0.95\columnwidth}
+\includegraphics [width=0.95\columnwidth]{figures/sub_compare_expansion_1.pdf}
+\caption{(a) Vanilla MCST with expansion}
+\label{fig:expansion}
+\end{subfigure}
+\par\bigskip
+\begin{subfigure}[b]{0.95\columnwidth}
+\includegraphics [width=0.95\columnwidth]{figures/sub_compare_expansion_2.pdf}
+\caption{(b) Simplified MCST with limited expansion}
+\label{fig:limited_expansion}
+\end{subfigure}
+\caption{Comparr vanilla MCTS with simplified MCTS}
 \end{figure}
 
  Second one is original MCTS makes expansion to make decision make tree, but we simplified MCTS. 
- Since Da Vinci Code has 000000 on each depth, the number of casese make a number of sibling nodes too hard to compute decision through MCTS. 
+ Since Da Vinci Code has 000000 on each depth, the number of cases makes a number of sibling nodes too hard to compute decision through MCTS. 
  In addition, too many cases make wrong decision, because root node has nodes that have similar winning rate. 
  Therefore, MCTS which we implemented has limitation of expansion. 
- The \cref{fig:compare_expansion} shows the difference bewteen original MCTS and MCTS which we implemented. 
+ The \cref{fig:expansion} and \cref{fig:limited_expansion}shows the difference bewteen original MCTS and MCTS which we implemented. 
  We make one expansion from root and then the remaining turns are proceeded randomly. 
  The result of game updates expanded node from root and the MCTS doesn't make other expansion from frist depth. 
 
 
 \begin{figure}
-\includegraphics{figures/fit_1col.pdf}
-\caption{FIX:Figure}
+\includegraphics[width=0.95\columnwidth]{figures/implementation.pdf}
+\caption{Overall process of creating MCTS}
 \label{fig:implementation}
 \end{figure}
 
@@ -226,11 +237,11 @@ We measure the execution time to analysis the dominant factor of time consuming.
 We evaluate the performance and difference between CPU based MCTS and GPU based MCTS to measure from the number of simulation per second.
 
 \subsection{Execution Time}
-\begin{figure}
-\includegraphics{figures/fit_1col.pdf}
-\caption{FIX:Figure}
+\begin{figure*}
+\includegraphics[width=2.05\columnwidth]{figures/time_consuming.pdf}
+\caption{The time consuming according to the number of iterations}
 \label{fig:time_consuming}
-\end{figure}
+\end{figure*}
 
 We mesure the execution time by varying the number of simulations from 1 to $10^7$ and calculate average values on 5 times execution. 
 The \cref{fig:time_consuming} shows the execution time which CPU measures using 12 threads and GPU measures using 32 threads
@@ -240,11 +251,11 @@ The \cref{fig:time_consuming} shows that the execution is not much different whe
 However, as the number of simulations increases, the number of simulations and the execution time are proportional.
 The reason is when the number of simulation is small, the memory access to the large array becomes the key factor of the performance. However, when the number of simulation is large, the computing becomes the key factor. Therefore the performance (execution time) is proportional to the number of simulations.
 
-\subsection{The Number of Simulation per Second}
+\subsection{The Number of Simulations per Second}
 \subsubsection{CPU}
 \begin{figure}
-\includegraphics{figures/fit_1col.pdf}
-\caption{FIX:Figure}
+\includegraphics[width=0.95\columnwidth]{figures/cpu_num_simulation.pdf}
+\caption{The number of simulations per second on CPU}
 \label{fig:cpu_num_simulation}
 \end{figure}
 
@@ -254,8 +265,8 @@ The reason why the number of simulations decrease is that we have only 12 core. 
 Therefore, it can be seen that the performance increases linearly with the number of cores in the CPU. 
 \subsubsection{GPU}
 \begin{figure}
-\includegraphics{figures/gpu_num_simulation.pdf}
-\caption{FIX:Figure}
+\includegraphics[width=0.95\columnwidth]{figures/gpu_num_simulation.pdf}
+\caption{The number of simulations per second on GPU}
 \label{fig:gpu_num_simulation}
 \end{figure}
 
@@ -266,8 +277,8 @@ This is because cache misses increase as the number of thread is used, and memor
 
 We measure the number of simulations with varying the number of warps to identify the valley which is mentioned in [cite]. 
 \begin{figure}
-\includegraphics{figures/fit_1col.pdf}
-\caption{FIX:Figure}
+\includegraphics[width=0.95\columnwidth]{figures/gpu_warp_simulation.pdf}
+\caption{The number of simulation according to the number of warps on GPU}
 \label{fig:gpu_warp_simulation}
 \end{figure}
 
@@ -276,8 +287,8 @@ If the number of warps is over 12, the performance decrease like [cite].
 The memory contention makes valley, therefore the the number of simulation reducte despite increasing the number of warps. 
 
 \begin{figure}
-\includegraphics{figures/gpu_thread_time.pdf}
-\caption{Fix: }
+\includegraphics[width=0.95\columnwidth]{figures/gpu_thread_time.pdf}
+\caption{How much time takes to execute application on GPU depending on thread size}
 \label{fig:gpu_thread_time}
 \end{figure}
 
