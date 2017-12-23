@@ -14,13 +14,8 @@ As we modified the algorithm due to compuation overhead, we explain the algorith
 
 \subsection{Designing Simplified Algorithm}
 
-\begin{figure}
-\includegraphics[width=0.95\columnwidth]{figures/base_tree.pdf}
-\caption{Tree for Da Vinci Code}
-\label{fig:base_tree}
-\end{figure}
 
-We designed the tree that each node represents the guessing tile's postion and guessing number~(\cref{fig:base_tree}).
+We designed the tree that each node represents the guessing tile's postion and guessing number.
 % The \cref{fig:base_tree} shows the overall of MCTS for Da Vinci Code. 
 Each node has position and number which are values that a player guesses.
 Inherently, depth of tree means the number of guessing until the node.
@@ -28,12 +23,28 @@ Inherently, depth of tree means the number of guessing until the node.
 
 
 We modified two components of MCTS to simplify the problem.
+\begin{figure}
+\begin{subfigure}[b]{0.95\columnwidth}
+\includegraphics [width=0.95\columnwidth]{figures/sub_guess_1.pdf}
+\caption{MCST with deciding whether to proceed with the game }
+\label{fig:proceed_game}
+\end{subfigure}
+\par\bigskip
+\begin{subfigure}[b]{0.95\columnwidth}
+\includegraphics [width=0.95\columnwidth]{figures/sub_guess_2.pdf}
+\caption{MCST with only stop choice}
+\label{fig:stop_game}
+\end{subfigure}
+\caption{Comparing vanilla MCTS with simplified MCTS}
+\end{figure}
+
 First one is that a player who plays Da Vinci code has two behaviors in each turn, when he/she guesses the tiles. 
 Two behaviors are stop and keepping guess.
 If the player guesses correctly, play can select stop or keepping guess. 
-Therefore, Original Da Vinci code makes depending on the player's choice. 
-However, we implemented Da Vinci code that only stop whether the player hits the tile or not. 
-Since original Da vinci code has numerous of child node which make the decision tree unbalanced, we decided to implemente simple Da Vinci code which only has stop behavior.
+Therefore, Original Da Vinci code makes depending on the player's choice as \cref{fig:proceed_game}.
+The gray nodes mean that a player selects keeping guess. 
+However, we implemented Da Vinci code that only stop whether the player hits the tile or not as \cref{fig:stop_game}. 
+Since original Da vinci code has numerous child node which make the decision tree unbalanced, we decided to implemente simple Da Vinci code which only has stop behavior.
  
 \begin{figure}
 \begin{subfigure}[b]{0.95\columnwidth}
@@ -50,7 +61,7 @@ Since original Da vinci code has numerous of child node which make the decision 
 \caption{Comparing vanilla MCTS with simplified MCTS}
 \end{figure}
 
-Second one is original MCTS makes expansion to make decision make tree, but we simplified MCTS. 
+Second one is original MCTS makes expansion to make decision making tree, but we simplified MCTS. 
 Since Da Vinci Code has 000000 on each depth, the number of cases makes a number of sibling nodes too hard to compute decision through MCTS. 
 In addition, too many cases make wrong decision, because root node has nodes that have similar winning rate. 
 Therefore, MCTS which we implemented has limitation of expansion. 
