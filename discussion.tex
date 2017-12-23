@@ -11,18 +11,20 @@ For \gpu, memory contention and path divergence interfere performance improvemen
 In order to utilize parallelization well, MCST should be optimized for Da Vinci code to solve the bottleneck.
 
 \subsection{Challenges during the project} %Davinci code가 MCTS에 맞지 않아서 구현이 힘들었다
-We implemented \cpu and \gpu to compare performance of MCTS for Da Vinci code. 
+We implemented \cpu~and \gpu to compare performance of MCTS for Da Vinci code. 
 However Da Vinci code is not suitable for the structure of MCTS because of unbalanced length of turn and a lot of cases.
 Huge cases makes numerous sibling nodes so it is hard to conduct MCTS. 
 In addition unbalanced lenth causes path divergence so it is hard to parallize.
 This structural problem has made it difficult to implement the MCTS.
 
-\subsection{Future works}
-To optimize the MCTS, we need to analysis the main factor of memory contention with controlling memory consumption per thread. 
-Through identifing the cause of bottleneck, we need to design the MCTS to solve this problem.
+% \subsection{Future works}
+% To optimize the MCTS, we need to analysis the main factor of memory contention with controlling memory consumption per thread. 
+% Through identifing the cause of bottleneck, we need to design the MCTS to solve this problem.
+
 \section{Conclusion}
-We implement \cpu and \gpu for Da Vinci code for parallelization. 
-To Compare \cpu with \gpu, we measure the execution time with increasing the number of simulation and the number of simulation with increasing thread. 
-Through the result, \cpu show well strongly scaled in parallelization while \gpu show non-weakly scaled due to memory contention. 
+We implemented \cpu~and \gpu for Da Vinci code for parallelization. 
+To Compare \cpu~with \gpu, we measured the execution time with increasing the number of simulations.
+We also measured the number of simulations with increasing thread. 
+Through the result, \cpu~showed well scaled performance, whereas \gpu is not scaled well due to memory contention.
 
 

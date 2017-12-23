@@ -86,7 +86,7 @@ Nodes that has depth of the threshold conduct simulation and backpropagation, ex
 % In addition, too many cases make wrong decision, because root node has nodes that have similar winning rate. 
 % Therefore, MCTS which we implemented has limitation of expansion. 
 The \cref{fig:expansion} and \cref{fig:limited_expansion} show the difference bewteen original MCTS and simplified MCTS which we implemented.
-By setting the expansion threshold, we eliminates the unrealistic-depth node.
+By setting the expansion threshold as 1, we eliminates the unrealistic-depth node.
 % We make one expansion from root and then the remaining turns are proceeded randomly. 
 % The result of game updates expanded node from root and the MCTS doesn't make other expansion from frist depth. 
 
@@ -98,28 +98,32 @@ By setting the expansion threshold, we eliminates the unrealistic-depth node.
 \end{figure}
 
 \subsection{Implementation overview}
-To make final MCTS, each thread makes small MCTS by simulating a couple of games.
-At this time, MCTS is conducted based on current state of own player and an oppenent.
-THrough playing some games within a thread, a simulation makes small MCTS.
-Each game in a thread expands the child node from root. 
-After the game expands the child node at the frist turn in a thread, the game proceeds randomly. 
-The result of game rolls out parent node and is updated on the node which is expanded. 
-The next game also expands the child node from the root and update the result of game to expanded node (depth one).
-Each tread repeats this routin to make small MCTS. 
-The threads have small trees which are from simulation and these trees are combined to final MCTS which is used for decision making in Da Vinci code. 
+In MCTS implementation, each thread executes four stpes of MCTS repeatedly.
+At this time, MCTS is conducted based on current state of a player and the oppenent.
+Through simulating plays within a thread, a simulation makes small MCTS.
+Each game in a thread expands the child node from root.
+After the expansion, the game proceeds randomly. 
+The result of simulation is updated to from the expanded node to the root node.
+% The next game also expands the child node from the root and update the result of game to expanded node (depth one).
+Each tread repeats this routine to generates results. 
+The threads have small trees which are from simulation and these trees are combined to final MCTS.
+Then, the player makes the decision based on the final MCTS.
 The \cref{fig:implementation} shows the overall process how the MCTS is conducted.
-When the player comes to the turn, threads make final MCTS based on current state of the player and the oppenent. 
-The player makes the decision based on the final MCTS. 
+% When the player comes to the turn, threads make final MCTS based on current state of the player and the oppenent. 
+% The player makes the decision based on the final MCTS. 
 
-\subsection{Implementation of \cpu}
+\begin{itemize}
+\item{Implementation of \textbf{\cpu}}\\
 MCTS needs many simulated play repeatly to make good decision. 
-Parallelism can make MCTS construct good decision tree in a short period due to computating simultaneously. 
+% Parallelism can make MCTS construct good decision tree in a short period due to computating simultaneously.
 MCTS based on CPU is implemented by openMP to utilize parallelism. 
 Each thread computes simulations and derives a result(win or lose). 
 After finishing derivation of result, all results from each thread are combined one MCTS.
 
-\subsection{Implementation of \gpu}
-As we mentioned, MCTS needs parallelism to compute many cases for good decision. 
+\item{Implementation of \textbf{\gpu}}\\
+% As we mentioned, MCTS needs parallelism to compute many cases for good decision. 
 In GPU version, we use CUDA for paraller computation. 
-Each tread computes a couple of simulations and derive a result(win or lose) as same as CPU version. 
+Each tread computes simulations and derives a result(win or lose) as same as CPU version. 
 After finishing deduction of result for each small MCTS, the small MCTS are combined final MCTS. 
+
+\end{itemize}

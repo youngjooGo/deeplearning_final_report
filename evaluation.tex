@@ -17,11 +17,11 @@ The \cref{fig:time_consuming} shows the execution time which was measured using 
 We could observe that the execution time increases as the number of simulations increases.
 Therefore, the number of simulation can be dominant factor of time consuming. 
 
-The \cref{fig:time_consuming} shows that the execution is not much different when the number of simulations is small. 
-The reason is when the number of simulation is small, the memory access to the large array becomes the key factor of the performance. 
-However, as the number of simulations increases, the number of simulations and the execution time are proportional.
-This is because when the number of simulation is large, the computing becomes the key factor. 
-Therefore the performance (execution time) is proportional to the number of simulations, if amount of computation is large.
+The \cref{fig:time_consuming} shows that the execution is not much different when the number of simulations is small.
+The memory access to the large array becomes the key factor of the performance when the number of simulation is small.
+The number of simulations and the execution time are proportional as the number of simulations increases.
+The computing becomes the key factor when the number of simulation is large.
+Therefore, the performance (execution time) is proportional to the number of simulations, if amount of computation is large.
 
 \subsection{The Number of Simulations per Second}
 \subsubsection{CPU}
@@ -32,8 +32,8 @@ Therefore the performance (execution time) is proportional to the number of simu
 \end{figure}
 
 The \cref{fig:cpu_num_simulation} shows the result of the number of simulation per second over increasing number of threads of CPU. 
-As incresing threads, the number of simulations per second also increases linearly. 
-However, you can see the number of simulations decrease if the number of threads exceeds 12. 
+The number of simulations per second increases linearly.
+However, the number of simulations decrease if the number of threads exceeds 12. 
 The reason why the number of simulations decrease is that we have only 12 core. In other word, the number of physical cores is the scalability bootleneck. 
 Therefore, it can be seen that the performance increases linearly with the number of cores in the CPU. 
 \subsubsection{GPU}
