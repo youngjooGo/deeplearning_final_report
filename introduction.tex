@@ -44,12 +44,12 @@ We explained the detailed rule of Da Vinci Code~(Section~\ref{sec:davinci}) and 
 We implement and evaluated two versions of MCTS to compare how branch divergence problem affects performance on GPU.
 We implemented CPU-version of MCTS, called \cpu, which used OpenMP to parallelize simulations.
 We implemented GPU-version of MCTS, called \gpu, which used cuda library to parallelize simulations.
-We evaluated both of \cpu and \gpu.
+We evaluated both of \cpu~and \gpu.
 % \cpu shown linear fashion performance increasing, whereas \gpu showed non-linear fashion performance increasing and peformance valley.
 % Performance up to 12 threads increases linearly on \cpu.
 % Since each core proceeds the thread, performance improvements due to threads increase are limited by the count of cores.
-In \cpu case, each thread is executed by a core, so performance improvement over the number of threads is maintained.
-However, in \gpu case, group of threads are executed by a core (SM or streaming multiprocessor), so performance improvement over the number of threads are not maintained.
+In \cpu~case, each thread is executed by a core, so performance improvement over the number of threads is maintained.
+However, in \gpu~case, group of threads are executed by a core (SM or streaming multiprocessor), so performance improvement over the number of threads are not maintained.
 We concluded that branch divergence within a warp and memory contention decreases the performance.
 Branch divergence which resulted from unbalanced game length makes low scalability.
 The performance valley resulted from memory contention as the threads increase. 

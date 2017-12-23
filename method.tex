@@ -3,29 +3,33 @@
 % 일반적으로, implementation은 algorithm 뒤에 오는 경우가 많음.
 \section{Method}
 We implemented two versions of MCTS for Da Vinci code. 
-Firstly, we implemented the MCTS algorithm for Da vinci code (\cpu) that is running upon CPU environment.
+Firstly, we implemented the MCTS algorithm for Da vinci code (\cpu) which is running upon CPU environment.
 We used OpenMP to parallelize the algorithm.
-Secondly, we implemented the same algorithm that is running upon GPU environment (\gpu).
+Secondly, we implemented the same algorithm which is running upon GPU environment (\gpu).
 We used cuda to implement and parallelize the algorithm.
 
 % Both versions are implemented in parallel. 
 In the remaining of this section, we describes each version of algorithm in detail. 
 As we modified the algorithm due to compuation overhead, we explain the algorithm design considerations compared to the vanilla version of MCTS.
 
-\subsection{Simplified Algorithm Design}
+\subsection{Designing Simplified Algorithm}
 
 \begin{figure}
 \includegraphics[width=0.95\columnwidth]{figures/base_tree.pdf}
-\caption{The base tree of MCTS}
+\caption{Tree for Da Vinci Code}
 \label{fig:base_tree}
 \end{figure}
 
-The \cref{fig:base_tree} shows the overall of MCTS for Da Vinci Code. 
-Each node has position and number which are values that a player guesses. Each depth means the game turn. 
-We implement simplified algorithm to reduce computation and proceed on real time, since original Da Vinci code has a lot of sibling nodes and child nodes which require a huge amount of computation and time limitation. 
-There are two case that we simplified. 
-First one is that a player who plays Da Vinci code has two behaviors in each turn, when he/she gussese the tiles. 
-Two behaviors are stop and keepping guess. 
+We designed the tree that each node represents the guessing tile's postion and guessing number~(\cref{fig:base_tree}).
+% The \cref{fig:base_tree} shows the overall of MCTS for Da Vinci Code. 
+Each node has position and number which are values that a player guesses.
+Inherently, depth of tree means the number of guessing until the node.
+% We implement simplified algorithm to reduce computation and proceed on real time, since original Da Vinci code has a lot of sibling nodes and child nodes which require a huge amount of computation and time limitation. 
+
+
+We modified two components of MCTS to simplify the problem.
+First one is that a player who plays Da Vinci code has two behaviors in each turn, when he/she guesses the tiles. 
+Two behaviors are stop and keepping guess.
 If the player guesses correctly, play can select stop or keepping guess. 
 Therefore, Original Da Vinci code makes depending on the player's choice. 
 However, we implemented Da Vinci code that only stop whether the player hits the tile or not. 
@@ -34,16 +38,16 @@ Since original Da vinci code has numerous of child node which make the decision 
 \begin{figure}
 \begin{subfigure}[b]{0.95\columnwidth}
 \includegraphics [width=0.95\columnwidth]{figures/sub_compare_expansion_1.pdf}
-\caption{Vanilla MCST with expansion}
+\caption{MCST with unlimited expansion}
 \label{fig:expansion}
 \end{subfigure}
 \par\bigskip
 \begin{subfigure}[b]{0.95\columnwidth}
 \includegraphics [width=0.95\columnwidth]{figures/sub_compare_expansion_2.pdf}
-\caption{Simplified MCST with limited expansion}
+\caption{MCST with limited expansion}
 \label{fig:limited_expansion}
 \end{subfigure}
-\caption{Comparr vanilla MCTS with simplified MCTS}
+\caption{Comparing vanilla MCTS with simplified MCTS}
 \end{figure}
 
 Second one is original MCTS makes expansion to make decision make tree, but we simplified MCTS. 
@@ -61,7 +65,7 @@ The result of game updates expanded node from root and the MCTS doesn't make oth
 \label{fig:implementation}
 \end{figure}
 
-\subsection{Overall Implementation}
+\subsection{Implementation overview}
 To make final MCTS both of CPU and GPU, each thread make small MCTS by simulating a couple of games.
 At this time, MCTS is conducted based on current state of own player and an oppenent.
 As playing some games within a thread, a simulation makes small MCTS.
@@ -75,14 +79,14 @@ The \cref{fig:implementation} shows the overall process how the MCTS is conducte
 When the player comes to the turn, threads make final MCTS based on current state of the player and the oppenent. 
 The player makes the decision based on the final MCTS. 
 
-\subsection{Implementation of MCTS based on CPU}
+\subsection{Implementation of \cpu}
 MCTS needs many simulated play repeatly to make good decision. 
 Parallelism can make MCTS construct good decision tree in a short period due to computating simultaneously. 
 MCTS based on CPU is implemented by openMP to utilize parallelism. Each thread computes some turns and derivates a result(win or lose). 
 After finish derivation of result, all results from each thread are combined one MCTS.
 
 
-\subsection{Implementation of MCTS based on GPU}
+\subsection{Implementation of \gpu}
 As we mentioned, MCTS need parallelism to computation many cases for good decision. 
 In GPU version, we use CUDA for paraller computation. 
 Each tread computes a couple of turns and derivates a result(win or lose) as same as CPU version. 
