@@ -1,0 +1,77 @@
+%!Tex root = bare_conf.tex
+
+\section{Introduction}
+% no \IEEEPARstart
+ 
+% Popularity of A.I
+Artificial intelligence defeated human play in the game `Go'.
+As the number of cases in go is considered much larger than the number of cases in chess or Korean chess, go is treated as the unsolvable game to artificial intelligence.
+However, AlphaGo defeated Korean top go player Sedol Lee, and the next version of AlphaGo defeated top go player Ke Jie.
+Interestingly, AlphaGo decided to put a stone to a strange location that most go players could not understand~\cite{wierd_alphago}.
+Many players shocked about the play of the AlphaGo and tried to learn the new strategies.
+
+% Importance of MCTS
+Monte Carlo tree search (MCTS) is a decision making algorithm that is used to implement AlphaGo~\cite{silver2016mastering_alphago}.
+MCTS requires large number of simulations, and we hypothesized that large number of simulations led AlphaGo to the strange-but-good location.
+The larger number of simulations, the better decision MCTS shows.
+However, go has time limit for each turn, the number of simulations for each turn must be limited.
+
+% Success of MCTS. Parallelism
+AlphaGo put large number of hardware to increase the number of simulations~\cite{silver2016mastering_alphago}.
+The paper-version AlphaGo used 48 CPUs and 8 GPUs.
+Those hardware computing unit computes each simulation cases in parallel.
+The main factor of defeating human is not only improvement of algorithm, but also improvement of hardware.
+
+% Drawback of MCTS.
+However, specific case of the game algorithm can harm the parallelism of MCTS.
+GPU-based parallelism exploits the SIMT model that executes the same instruction within many threads.
+Therefore, branch instruction harms the parallelism because both of taken branch and non-taken branch need to be executed.
+The problem is called \textit{branch divergence}, and high \textit{branch divergence} decreases a program's performance drastically.
+
+% Case study by Da Vinci Code
+We hypothesized that a board game game 'Da Vinci Code' suffered from branch divergence.
+% Not only branch divergence, Da Vinci Code has large number of cases.
+The property harm the decision because of two reasons.
+Firstly, branch divergence make different length of execution path of each thread, and the shorter-lengthed thread decreased SIMD utilization.
+Secondly, branch divergence make large number of MCTS cases, and large number of cases decreased the number of simulations per a case within a fixed time duration.
+In Da Vinci Code, each player guess other player's tile.
+A player may guess one more tile when the player guessed a tile correctly, and this characteristic makes barnch divergence.
+% A player could not know about other player's tile before making a correct dicision, and this randomness makes the number of cases much larger.
+We explained the detailed rule of Da Vinci Code~(Section~\ref{sec:davinci}) and interesting features of Da Vinci Code~(Section~\ref{sec:mcts}) later.
+
+
+% Prove of drawbacks (overhead)
+We implement and evaluated two versions of MCTS to compare how branch divergence problem affects performance on GPU.
+We implemented CPU-version of MCTS, called \cpu, which used OpenMP to parallelize simulations.
+We implemented GPU-version of MCTS, called \gpu, which used cuda library to parallelize simulations.
+We evaluated both of \cpu and \gpu.
+% \cpu shown linear fashion performance increasing, whereas \gpu showed non-linear fashion performance increasing and peformance valley.
+% Performance up to 12 threads increases linearly on \cpu.
+% Since each core proceeds the thread, performance improvements due to threads increase are limited by the count of cores.
+In \cpu case, each thread is executed by a core, so performance improvement over the number of threads is maintained.
+However, in \gpu case, group of threads are executed by a core (SM or streaming multiprocessor), so performance improvement over the number of threads are not maintained.
+We concluded that branch divergence within a warp and memory contention decreases the performance.
+Branch divergence which resulted from unbalanced game length makes low scalability.
+The performance valley resulted from memory contention as the threads increase. 
+
+% We has found the features which makes performance degradation on \gpu which are memory contention, branch divergence.
+% We will analysis the main feature which causes the performance degradation.
+% We will optimize \gpu by solving the problems.
+% We will utilize shared memory and use memory locality to reduce memory contention.
+% In addition, we will modify the branch statement to reduce branch divergence so that there is not an idle thread left.
+
+% Future plan. Future work. (Discussion)
+
+
+% Intro to rest of the paper
+
+% Monte Carlo Tree Search (MCTS) is a decision making algorithm which has been used for implementing aritifial intelligence(AI) widly.
+% Since MCTS is used for games which proceed on real time, it should make decision within a limied time. 
+% However, we have to repeat a number of simulated games for good performance of MCTS. 
+% If MCTS doesn't have enough simulated games, MCTS can make wrong decision. 
+% Therefore parallelism of MCTS not only make right decision, but also reduce the time.\\
+% The Da vinci code is the kinds of board game. This game guesses the tiles of opponent based on 
+
+% \hfill mds
+ 
+% \hfill December 23, 2017

@@ -1,0 +1,10 @@
+%!Tex root = bare_conf.tex
+
+\section{Motivation}
+The MCTS, which is used to make decisions in the game, must complete decisions in a limited amount of time for real-time game play. 
+However, in order for MCTS to make good decisions, it is necessary to repeat a number of simulated plays, and when there are not enough simulated plays, a bad answer can be drawn. 
+Therefore, parallelization of MCTS is necessary to obtain a high performance answer.
+In this project, we will implement the 'DaVinci Code' MCTS to find features that are not suitable for the GPU through comparing GPU based application with CPU based application.
+The Da Vinci code has a number of branch divergence and the the time taken to execute command depends on the branch.
+In this project, we find the problems which the unsuitable GPU application causes.
+We study features that make Da Vinci code-MCTS suitable for GPU compared to CPU based MCTS.
