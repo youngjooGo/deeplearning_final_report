@@ -24,10 +24,25 @@ We designed the tree that each node represents the guessing tile's postion and g
 % The \cref{fig:base_tree} shows the overall of MCTS for Da Vinci Code. 
 Each node has position and number which are values that a player guesses.
 Inherently, depth of tree means the number of guessing until the node.
+As players in Da Vinci Code game do not know about other player's tile number, all simulations must be done in black-box manner.
+We solve this problem by calculating plausible numbers of opponents tiles.
+In each simulation, we randomly picked a set of plausible numbers of the tils, and conducted a simulation according to the numbers.
+In this case, the same guessings (e.g., 5 to the leftmost tile) may induce the different results in the different simulation.
+Therefore, a node must have information of the set of number to differentiate the results.
+We treated this algorithm as a vanilla Da Vinci Code algorithm (\md).
+
 % We implement simplified algorithm to reduce computation and proceed on real time, since original Da Vinci code has a lot of sibling nodes and child nodes which require a huge amount of computation and time limitation. 
 
 
-We modified two components of MCTS to simplify the problem.
+We modified three parts of \md~to simplify the problem.
+At first, we ignored a set of plausible numbers in view of node.
+When we consider a set of plausible numbers, the number of child nodes is exploded.
+For example, at the first turn, the root node can have at least 11880 number of chiled nodes.
+We compute the number conservatively by considering the case that the opponent have the same colored four tiles.
+Though the number is minimum of the number of cases, the number is much higher than 361, the number of go's.
+We decided to ignore the set of plausible numbers, and only think of guessing position and guessing number because too many child nodes harm the quality of decision.
+By ignoring, we decreased the number
+
 First one is that a player who plays Da Vinci code has two behaviors in each turn, when he/she guesses the tiles. 
 Two behaviors are stop and keepping guess.
 If the player guesses correctly, play can select stop or keepping guess. 
